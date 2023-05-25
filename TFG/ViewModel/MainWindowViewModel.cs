@@ -2,24 +2,23 @@
 using Microsoft.Win32;
 using Microsoft.Office.Interop.Word;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.ComponentModel;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace TFG.ViewModel
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private ICommand _openFileDialogCommand;
-        private string _fileContent = "";
+        private string _fileContent;
+ 
 
         public MainWindowViewModel() 
         {
             _openFileDialogCommand = new RelayCommand(ReadUserSelectedFile, ReadUserSelectedFileCanExecute);
+            _fileContent = string.Empty;
         }
         
         public ICommand OpenFileDialogCommand
@@ -62,19 +61,38 @@ namespace TFG.ViewModel
         {
             try
             {
-                //TODO: Replace document opening logic with Aspose library to avoid visibly opening Word on the user's computer
-                OpenFileDialog fileDialog = new();
-                fileDialog.Filter = "Word documents (.doc; .docx)|*.doc;*.docx";
+                OpenFileDialog fileDialog = new()
+                {
+                    Filter = "Word documents (.doc; .docx)|*.doc;*.docx"
+                };
+
                 fileDialog.ShowDialog();
 
                 string selectedFilePath  = fileDialog.FileName.ToString();
 
                 if (!string.IsNullOrEmpty(selectedFilePath))
                 {
-                    Microsoft.Office.Interop.Word.Application app = new();
-                    Document doc = app.Documents.Open(selectedFilePath);
-                    FileContent = doc.Content.Text;
-                    app.Quit();
+                    Object miss = Type.Missing;
+                    object readOnly = true;
+                    object isVisible = false;
+
+                    Document document;
+                    Word.Application application = new() { Visible = false };
+
+                    document = application.Documents.Open(selectedFilePath, ref miss, ref readOnly, ref miss, ref miss, ref miss, ref miss, ref miss, 
+                                                            ref miss, ref miss, ref miss, ref isVisible, ref miss, ref miss, ref miss, ref miss);
+                    document.ActiveWindow.Selection.WholeStory();
+                    document.ActiveWindow.Selection.Copy();
+
+                    var dataDoc = "";
+                    dataDoc = Clipboard.GetDataObject().GetData(DataFormats.Rtf).ToString();
+                    
+                    if(dataDoc != null)
+                    {
+                        FileContent = dataDoc;
+                    }
+
+                    application.Quit();
                 }
             } 
             catch (Exception ex)
