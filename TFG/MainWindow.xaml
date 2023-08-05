@@ -15,7 +15,8 @@
             <RowDefinition Height="60"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Button x:Name="OpenFileDialogButton" Command="{Binding Path=OpenFileDialogCommand}" Content="Open file" HorizontalAlignment="Center" MinWidth="100" Margin="10,10,10,10" Grid.Row="0"/>
+        <Button x:Name="OpenFileDialogButton" Command="{Binding Path=OpenFileDialogCommand}" Content="Open file" HorizontalAlignment="Left" MinWidth="100" Margin="200,10,0,10" Grid.Row="0"/>
+        <Button x:Name="MarkFileButton" Command="{Binding Path=MarkFileCommand}" IsEnabled="{Binding EnabledMarkButton}" Content="Mark document" HorizontalAlignment="Center" MinWidth="100" Margin="100,10,0,10" Grid.Row="0"/>
         <xctk:RichTextBox x:Name="DocumentTextBox" Margin="20,0,20,20" Text="{Binding FileContent}" Grid.Row="1"/>
     </Grid>
 </Window>
