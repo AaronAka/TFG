@@ -156,9 +156,9 @@ namespace TFG.ViewModel
                 bool body = false;
                 using (var importedDoc = DocX.Load(_importedDocument))
                 {
-                    foreach (var fortnite in importedDoc.Sections)
+                    foreach (var sections in importedDoc.Sections)
                     {
-                        foreach(var par in fortnite.SectionParagraphs)
+                        foreach(var par in sections.SectionParagraphs)
                         {
                             if (par.MagicText.Any(x => x.formatting.Bold == true && x.formatting.Size > 13))
                             {
@@ -168,7 +168,7 @@ namespace TFG.ViewModel
                                 par.Alignment = Alignment.center;
                                 alsoCheckRest = true;
                             }
-                            if (alsoCheckRest)
+                            if (alsoCheckRest && par.NextParagraph != null)
                             {
                                 if (par.Text.Contains("Agradecimientos") && par.MagicText.Any(x => x.formatting.Bold == true))
                                 {
@@ -186,8 +186,7 @@ namespace TFG.ViewModel
                                 else if (par.NextParagraph.Text == "INTRODUCCIÓN")
                                 {
                                     string markedText = "[xmlbody]";
-                                    var replaceOptions = new StringReplaceTextOptions { SearchValue = par.Text, NewValue = markedText };
-                                    par.ReplaceText(replaceOptions);
+                                    par.InsertText(markedText);
                                     body = true;
                                 }
                                 else if (body && par.Text == "INTRODUCCIÓN")
@@ -230,7 +229,7 @@ namespace TFG.ViewModel
                                     par.Alignment = Alignment.both;
 
                                 }
-                                else if (!reachedBibliography && par.MagicText.Any(x => x.formatting.Size >= 10 && x.formatting.Size < 12 && x.formatting.Bold != true && x.formatting.Italic != true))
+                                else if (!reachedBibliography && par.MagicText.Any(x => x.formatting.Size >= 10 && x.formatting.Size < 12 && x.formatting.Bold != true))
                                 {
                                     string markedParagraph = "[p]" + par.Text;
                                     if (par.Text[par.Text.Length - 1] == '.' && par.Text.Length > 20)
@@ -247,7 +246,7 @@ namespace TFG.ViewModel
                             }
                         }
                     }
-                    importedDoc.SaveAs("fortnite");
+                    importedDoc.SaveAs("testDocument");
                 }
             } 
             catch (Exception ex)
@@ -260,7 +259,6 @@ namespace TFG.ViewModel
         {
             string[] splittedAuthors = par.Text.Split(new char[] { ',', '.', 'y' });
             List<string> authors = new List<string>();
-            int i = 0;
             string author = "";
             foreach(string val in splittedAuthors) 
             {
@@ -282,159 +280,6 @@ namespace TFG.ViewModel
             }
             return res;
         }
-
-        /* private void MarkImportedDocument()
-{
-   const string wordmlNamespace = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-   StringBuilder textBuilder = new StringBuilder();
-   using (WordprocessingDocument wdDoc = WordprocessingDocument.Open(_importedDocument, false))
-   {
-       NameTable nt = new NameTable();
-       XmlNamespaceManager nsManager = new XmlNamespaceManager(nt);
-       nsManager.AddNamespace("w", wordmlNamespace);
-
-       XmlDocument xdoc = new XmlDocument(nt);
-       xdoc.Load(wdDoc.MainDocumentPart.GetStream());
-
-       XmlNodeList paragraphNodes = xdoc.SelectNodes("//w:p", nsManager);
-       var a = 2;
-   }
-}*/
-        /*private void MarkImportedDocument()
-        {
-            try
-            {
-                using (var importedDoc = DocX.Load(_importedDocument))
-                {
-                    using (var newDocument = DocX.Create((@"C:\Users\PC\Desktop\pogchamp.docx")))
-                    {
-                        bool foundTitle = false;
-                        bool foundAuthors = false;
-                        var a = importedDoc.Sections;
-                        foreach (var section in a)
-                        {
-                            foreach (var paragraph in section.SectionParagraphs)
-                            {
-                                if (paragraph.Text != "")
-                                {
-                                    if (!foundTitle)
-                                    {
-                                        var magicText = paragraph.MagicText;
-                                        if (magicText.Count == 1 && paragraph.MagicText[0].formatting.Bold == true && magicText[0].formatting.Size > 13)
-                                        {
-                                            var formats = magicText[0];
-                                            newDocument.InsertParagraph().Append("[doctitle]").Color(System.Drawing.Color.Purple).FontSize(formats.formatting.Size.Value);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append(formats.text).Color(System.Drawing.Color.Black).FontSize(formats.formatting.Size.Value);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append("[/doctile]").Color(System.Drawing.Color.Purple).FontSize(formats.formatting.Size.Value);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Alignment = Xceed.Document.NET.Alignment.center;
-
-                                            if (paragraph.NextParagraph.MagicText.Count >= 1 && paragraph.NextParagraph.MagicText[0].formatting.Bold != true)
-                                            {
-                                                foundTitle = true;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            newDocument.InsertParagraph(paragraph);
-                                        }
-                                    }
-                                } 
-                                else
-                                {
-                                    newDocument.InsertParagraph();
-                                }
-                            }
-                        }
-
-                        newDocument.Save();
-
-                        foreach (var despacito in importedDoc.Paragraphs)
-                        {
-
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error has ocurred while marking the file " + ex.ToString());
-            }
-        }*/
-
-        /*private void MarkImportedDocument()
-        {
-            try
-            {
-                using (var importedDoc = DocX.Load(_importedDocument))
-                {
-                    using (var newDocument = DocX.Create(@"C:\Users\PC\Desktop\pogchamp.docx"))
-                    {
-                        bool foundTitle = false;
-                        bool foundAuthors = false;
-                        foreach (var despacito in importedDoc.Paragraphs) 
-                        {
-                            if (!foundTitle ||!foundAuthors)
-                            {
-                                if (despacito.MagicText.Any())
-                                {
-                                    foreach (var formats in despacito.MagicText)
-                                    {
-                                        if (formats.formatting.Size > 13 && formats.formatting.Bold == true)
-                                        {
-                                            newDocument.InsertParagraph().Append("[doctitle]").Color(System.Drawing.Color.Purple).FontSize(formats.formatting.Size.Value);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append(formats.text).Color(System.Drawing.Color.Black).FontSize(formats.formatting.Size.Value);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append("[/doctile]").Color(System.Drawing.Color.Purple).FontSize(formats.formatting.Size.Value);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Alignment = Xceed.Document.NET.Alignment.center;
-                                            foundTitle = true;
-                                        }
-                                        else if (formats.formatting.Size == 12 && formats.formatting.Bold == null && formats.formatting.Italic == null && foundTitle)
-                                        {
-                                            newDocument.InsertParagraph().Append("[author role=\"nd\" rid=\"aff1\" corresp=\"n\" deceased=\"n\" eqcontr=\"nd\"][surname]");
-                                            if (!formats.text.Any(char.IsDigit))
-                                            {
-                                                var decomposedAuthor = formats.text.Split(',').Select(x => x.Replace(" ", string.Empty)).Where(x => !string.IsNullOrEmpty(x)).ToList();
-                                                if (decomposedAuthor.Count >= 2)
-                                                {
-                                                    newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append(decomposedAuthor[0] + "[/surname], [fname]" + decomposedAuthor[1] + "[/fname][/author]");
-                                                }
-                                            }
-                                        }
-                                        else if (formats.formatting.Size == 11 && formats.formatting.Bold == true)
-                                        {
-                                            newDocument.InsertParagraph().Append("[xmlabstr language=\"es\"]").Color(System.Drawing.Color.Red);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append("[sectitle]").Color(System.Drawing.Color.Blue);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append(formats.text).Color(System.Drawing.Color.Black);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append("[/sectitle]").Color(System.Drawing.Color.Blue);
-                                        }
-                                        else if (formats.formatting.Size == 11)
-                                        {
-                                            newDocument.InsertParagraph().Append("[p]").Color(System.Drawing.Color.Red);
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append(formats.text).Color(System.Drawing.Color.Black); ;
-                                            newDocument.Paragraphs[newDocument.Paragraphs.Count - 1].Append("/[p]").Color(System.Drawing.Color.Red);
-                                        }
-                                        else
-                                        {
-                                            newDocument.InsertParagraph().Append(formats.text, formats.formatting);
-                                        }
-                                    }
-
-                                }
-                            }
-                            
-                            
-                        }
-
-                        newDocument.Save();
-                    }
-                }
-
-                var a = 2;
-
-            } catch (Exception ex)
-            {
-                MessageBox.Show("An error has ocurred while marking the file " + ex.ToString());
-            }
-        }*/
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propertyName)
