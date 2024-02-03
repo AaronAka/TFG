@@ -16,25 +16,23 @@ namespace TFG.Model.ParagraphFormatStrategy
             {
                 objRange.Collapse(ref oCollapseEnd);
 
+                objRange.Text = textWithTags[i];
                 objRange.Font.Size = 11;
                 objRange.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
 
                 if (i == 0)
-                {
-                    objRange.Text = textWithTags[i];
+                { 
                     objRange.Font.Name = "Arial";
                     objRange.Font.Color = WdColor.wdColorGreen;
                     
                 }
                 else if (i == 1 || i == 3)
                 {
-                    objRange.Text = textWithTags[i];
                     objRange.Font.Name = "Arial";
                     objRange.Font.Color = WdColor.wdColorBlue;
                 }
                 else
                 {
-                    objRange.Text = textWithTags[i];
                     objRange.Font.Name = "Times New Roman";
                     objRange.Font.Color = WdColor.wdColorBlack;
                 }

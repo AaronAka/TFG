@@ -176,376 +176,117 @@ namespace TFG.ViewModel
                 var refIndex = 1;
                 Boolean inBody = false;
                 Boolean reachedBibliography = false;
-                bool inFirstSection = false;
-                bool inResults = false;
+                bool colourString = true;
 
                 List<string> extractedWords = new List<string>();
-                foreach (Word.Paragraph paragraph in document.Paragraphs)
+                foreach (Paragraph paragraph in document.Paragraphs)
                 {
                     string taggedString;
                     if (paragraph.Range.Text.Length <= 4)
                     {
                         continue;
                     }
-                    /*if (paragraph.Range.Text.Contains('\u000e'))
-                    {
-                       
-                    }*/
+
                     extractedWords.Clear();
 
                     if (paragraph.Range.Bold == -1 && paragraph.Range.Font.Size > 13)
                     {
-                        extractedWords.Clear();
-                        extractedWords.Add("[doctitle]");
-                        extractedWords.Add(paragraph.Range.Text.Replace("\r", "").Replace("\u000e", ""));
-                        extractedWords.Add("[/doctitle]");
+                        AddDoctitleTags(extractedWords, paragraph);
 
                         SetStrategy(new DoctitleParagraphFormat());
-                        strategy.formatParagraph(extractedWords, newDocument);
                     }
                     else if (reachedBibliography)
                     {
-                        //taggedString = "[ref id=\"r" + refIndex + "\" reftype =\"journal\"][authors role=\"nd\"]";
                         extractedWords.Add("[ref id=\"r" + refIndex + "\" reftype =\"journal\"][authors role=\"nd\"]");
                         var text = paragraph.Range.Text.Replace("\r", "").Replace("\u000e", "");
-                        Boolean additionalInformation = false;
-                        Boolean dateFound = false;
                         var splitText = text.Split(',');
-                        
-                        foreach (string line in splitText)
-                        {
-                            if (!dateFound && line.Contains('('))
-                            {
-                                var c = 0;
-                                var decomposedLastLine = line.Split('.');
-                                if (decomposedLastLine.Length >= 3)
-                                {
-                                    var lastName = string.Empty;
-                                    bool dateReached = false;
-                                    int i = 0;
-                                    while (!dateReached && i < decomposedLastLine.Length)
-                                    {
-                                        if (!decomposedLastLine[i].Contains('('))
-                                        {
-                                            lastName += decomposedLastLine[i] + ".";
-                                            i++;
-                                        }
-                                        else
-                                        {
-                                            dateReached = true;
-                                        }
-                                    }
-                                    
 
-                                    //var date = decomposedLastLine[1].Remove('(').Remove(')');
-                                    if (line == splitText.Last())
-                                    {
-                                        //taggedString += " [fname]" + lastName + "[/fname][/pauthor]";
-                                        extractedWords.Add(" [fname]" + lastName + "[/fname][/pauthor]");
-                                    }
-                                    else
-                                    {
-                                        //taggedString += " [fname]" + lastName + "[/fname][/pauthor], ";
-                                        extractedWords.Add(" [fname]" + lastName + "[/fname][/pauthor], ");
-                                    }
-                                    
-                                    var date = decomposedLastLine[i].Replace("(", "").Replace(")", "").Trim();
-                                    //taggedString += "[/authors] ";
-                                    extractedWords.Add("[/authors]");
-                                    //taggedString += "([date dateiso=\"" + (date + "0000") + "\" specyear=\"" + date + "\"]" + date + "[/date]).";
-                                    extractedWords.Add("([date dateiso=\"" + (date + "0000") + "\" specyear=\"" + date + "\"]" + date + "[/date]).");
-                                    //taggedString += " [arttitle]" + decomposedLastLine[i + 1].Trim() + ".[/arttitle]";
-                                    extractedWords.Add(" [arttitle]" + decomposedLastLine[i + 1].Trim() + ".[/arttitle]");
-                                    i++;
-
-                                    if (i <= decomposedLastLine.Length - 2)
-                                    {
-                                        //taggedString += "[source]" + decomposedLastLine[i + 1] + "[/source],";
-                                        extractedWords.Add("[source]" + decomposedLastLine[i + 1] + "[/source],");
-                                    }
-
-                                    dateFound = true;
-                                    additionalInformation = !splitText.Last().Equals(line);
-                                }
-                            }
-                            else if (additionalInformation)
-                            {
-                                var dd = 0;
-                                if (line.Contains('('))
-                                {
-                                    var indexOfOpenBracket = line.IndexOf("(");
-                                    var indexOfEndBracket = line.IndexOf(")");
-                                    //taggedString += string.Concat("[volid]", line.AsSpan(0, indexOfOpenBracket).Trim(), "[/volid]");
-                                    extractedWords.Add(string.Concat("[volid]", line.AsSpan(0, indexOfOpenBracket).Trim(), "[/volid]"));
-                                    //taggedString += string.Concat("([issueno]", line.AsSpan(indexOfOpenBracket + 1 , indexOfEndBracket - indexOfOpenBracket - 1).Trim(), "[/issueno]),");
-                                    extractedWords.Add(string.Concat("([issueno]", line.AsSpan(indexOfOpenBracket + 1, indexOfEndBracket - indexOfOpenBracket - 1).Trim(), "[/issueno]),"));
-                                }
-                                else if (line.Contains('–'))
-                                {
-                                    int indexOfSeparation = line.IndexOf('.');
-
-                                    if (indexOfSeparation > -1)
-                                    {
-                                        //taggedString += string.Concat("[pages]", line.AsSpan(0, indexOfSeparation).Trim(), "[/pages]");
-                                        extractedWords.Add(string.Concat("[pages]", line.AsSpan(0, indexOfSeparation).Trim(), "[/pages]"));
-                                        //taggedString += string.Concat("[pubid]", line.AsSpan(indexOfSeparation + 1).Trim() , "[/pubid]");
-                                        extractedWords.Add(string.Concat("[pubid]", line.AsSpan(indexOfSeparation + 1).Trim(), "[/pubid]"));
-                                    } 
-                                    else
-                                    {
-                                        //taggedString += "[pages]" + line.Trim() + "[/pages]";
-                                    }
-                                }
-                                else if (line.Contains(':'))
-                                {
-                                    //taggedString += "[pubid]" + line.Trim() + "[/pubid]";
-                                    extractedWords.Add("[pubid]" + line.Trim() + "[/pubid]");
-                                }
-                                else
-                                {
-                                    //taggedString += "[volid]" + line.Trim() + "[/volid]";
-                                    extractedWords.Add("[volid]" + line.Trim() + "[/volid]");
-                                }
-                            }
-                            else if (line.Length > 3 && !line.Contains('.'))
-                            {
-                                //taggedString += " [pauthor][surname]" + line + "[/surname],";
-                                extractedWords.Add(" [pauthor][surname]" + line + "[/surname],");
-                            }
-                            else
-                            {
-                                //taggedString += " [fname]" + line + "[/fname][/pauthor],";
-                                extractedWords.Add(" [fname]" + line + "[/fname][/pauthor],");
-                            }
-                        }
+                        AddBibliographyTags(extractedWords, splitText);
 
                         //taggedString += "[/ref]";
                         extractedWords.Add("[/ref]");
 
                         refIndex++;
                         SetStrategy(new BibliographyParagraphFormat());
-                        strategy.formatParagraph(extractedWords, newDocument);
-                        //BuildBibliographyParagraphString(taggedString, newDocument);
                     }
                     else if (paragraph.Range.Bold == 0 && paragraph.Range.Italic == 0 && paragraph.Range.Font.Size == 9999999 && paragraph.Alignment == WdParagraphAlignment.wdAlignParagraphCenter)
                     {
                         extractedWords = MarkAuthorsInterop(paragraph.Range.Text);
                         SetStrategy(new AuthorsParagraphFormat());
-                        strategy.formatParagraph(extractedWords, newDocument);
-                        //BuildAuthorsString(taggedString, newDocument);
                     }
-                    else if (paragraph.Range.Text == "INTRODUCCIÓN\r")
+                    else if (paragraph.Range.Text == "INTRODUCCIÓN\r" || paragraph.Range.Text == "MÉTODO\r" || paragraph.Range.Text.Contains("RESULTADOS"))
                     {
                         //taggedString = "[xmlbody]\r [sec sec-type=\"intro\"][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]";
                         inBody = true;
-                        List<string> strings = new List<string>();
-                        strings.Add("[xmlbody]\r [sec sec-type=\"intro\"]");
-                        strings.Add("[sectitle]");
-                        strings.Add(paragraph.Range.Text.Replace("\r", ""));
-                        strings.Add("[/sectitle]");
+                        //strings.Add("[xmlbody]\r [sec sec-type=\"intro\"]");
+                        //strings.Add("[xmlbody]\r [sec sec-type=\"intro\"]");
+                        AddSecTypeTags(extractedWords, paragraph);
+
+                        colourString = paragraph.Range.Text == "MÉTODO\r" ? false : true;
 
                         SetStrategy(new IntroParagraphFormat());
-                        strategy.formatParagraph(strings, newDocument);
-                        //BuildIntroParagraphString(strings, newDocument);
-                    }
-                    else if (paragraph.Range.Text == "MÉTODO\r")
-                    {
-                        //taggedString = "[sec sec-type=\"methods\"][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]";
-                        inFirstSection = true;
-                        List<string> strings = new List<string>();
-                        strings.Add("[sec sec-type=\"methods\"]");
-                        strings.Add("[sectitle]");
-                        strings.Add(paragraph.Range.Text.Replace("\r", ""));
-                        strings.Add("[/sectitle]");
 
-                        SetStrategy(new IntroParagraphFormat());
-                        strategy.formatParagraph(strings, newDocument);
-
-                        //BuildIntroParagraphString(strings, newDocument);
-                        //BuildRegularParagraphString(taggedString, newDocument);
-                    }
-                    else if (paragraph.Range.Text.Contains("RESULTADOS"))
-                    {
-                        //taggedString = "[sec sec-type=\"results\"][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]";
-                        //BuildRegularParagraphString(taggedString, newDocument);
-                        List<string> strings = new List<string>();
-                        strings.Add("[sec sec-type=\"results\"]");
-                        strings.Add("[sectitle]");
-                        strings.Add(paragraph.Range.Text.Replace("\r", ""));
-                        strings.Add("[/sectitle]");
-                        inResults = true;
-
-                        SetStrategy(new IntroParagraphFormat());
-                        strategy.formatParagraph(strings, newDocument);
-                        //BuildIntroParagraphString(strings, newDocument);
                     }
                     else if (paragraph.Range.Case == WdCharacterCase.wdUpperCase && paragraph.Range.Bold == -1 && paragraph.Range.Font.Size == 11)
                     {
-                        List<string> extractedText = new List<string>();
                         if (!inBody)
                         {
-                            extractedText.Add("[xmlabstr language=\"es\"][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]");
+                            extractedWords.Add("[xmlabstr language=\"es\"][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]");
 
                             SetStrategy(new SectitleParagraphFormat());
-                            strategy.formatParagraph(extractedText, newDocument);
-                            //BuildSectitleString(taggedString, newDocument);
                         }
                         else
                         {
-                            extractedText.Add("[subsec][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]");
-                            if (extractedText[0].Contains("BIBLIOGRAFÍA"))
+                            extractedWords.Add("[subsec][sectitle]" + paragraph.Range.Text.Replace("\r", "") + "[/sectitle]");
+                            if (extractedWords[0].Contains("BIBLIOGRAFÍA"))
                             {
                                 reachedBibliography = true;
                             }
+
                             SetStrategy(new RegularParagraphFormat());
-                            strategy.formatParagraph(extractedText, newDocument);
-                            //BuildRegularParagraphString(taggedString, newDocument);
                         }
                     }
                     else if (paragraph.Range.Text.Length > 2 && paragraph.Range.Font.Size >= 10 && paragraph.Range.Font.Size <= 11 && paragraph.Range.Bold != 9999999)
                     {
-                        List<string> strings = new List<string>();
                         var rawText = paragraph.Range.Text.Replace("\r", "").Replace("\u000e", "");
-                        if (inFirstSection || inResults)
+                        if (!colourString)
                         {
-                            strings.Add("[p]" + rawText + "[/p]");
+                            extractedWords.Add("[p]" + rawText + "[/p]");
 
                             SetStrategy(new RegularParagraphFormat());
-                            strategy.formatParagraph(strings, newDocument);
                         }
                         else
                         {
-                            strings.Add("[p]");
-                            strings.Add(rawText);
-                            strings.Add("[/p]");
+                            extractedWords.Add("[p]");
+                            extractedWords.Add(rawText);
+                            extractedWords.Add("[/p]");
 
                             SetStrategy(new RegularParagraphColoured());
-                            strategy.formatParagraph(strings, newDocument);
                         }
                     }
                     else if (paragraph.Range.Text.Contains("Tabla")  && paragraph.Range.Font.Size >= 8.5)
                     {
-                        var splitString = paragraph.Range.Text.Replace("\r", "").Replace("\u000e", "").Split('.');
-                        //taggedString = "[label]" + splitString[0] + "[/label].";
-                        //taggedString += "[caption]" + splitString[1] + splitString[splitString.Length - 1] + "[/caption]";
-                        List<string> strings = new List<string>();
-                        strings.Add("[figgrp id =" + tableIndex + "]");
-                        strings.Add("[label]");
-                        strings.Add(splitString[0]);
-                        strings.Add("[/label]");
-                        strings.Add("[caption]");
-                        strings.Add(splitString[1] + splitString[splitString.Length - 1]);
-                        strings.Add("[/caption]");
-
-                        //BuildTableWithString(strings, tableIndex , newDocument);
+                        AddTableTags(tableIndex, extractedWords, paragraph);
                         SetStrategy(new TableParagraphFormat());
-                        strategy.formatParagraph(strings, newDocument);
+
                         tableIndex++;
 
                     }
                     else if (paragraph.Range.Bold == 9999999 && paragraph.Range.Font.Size == 11 && paragraph.Range.Text.Contains(';') && paragraph.Alignment == WdParagraphAlignment.wdAlignParagraphJustify)
                     {
-                        var dividedKeywords = paragraph.Range.Text.Replace("\r", "").Split(':');
-                        var keywords = dividedKeywords[1].Split(';');
-                        List<string> strings = new List<string>();
-                        strings.Add("[kwdgrp language=\"es\"]");
-                        strings.Add("[sectitle]");
-                        strings.Add(dividedKeywords[0] + ":");
-                        strings.Add("[/sectitle]");
-
-                        foreach(string s in keywords)
-                        {
-                            if (keywords.Last().Equals(s))
-                            {
-                                strings.Add("[kwd]");
-                                strings.Add(s);
-                                strings.Add("[/kwd]");
-                                strings.Add("[/kwdgrp]");
-                            }
-                            else
-                            {
-                                strings.Add("[kwd]");
-                                strings.Add(s);
-                                strings.Add("[/kwd];");
-                            }
-                        }
-
+                        AddKeywordTags(extractedWords, paragraph);
                         SetStrategy(new KeywordParagraphFormat());
-                        strategy.formatParagraph(strings, newDocument);
-                        //BuildKeywordParagraph(strings, newDocument);
 
-                        /*taggedString = "[kwdgrp language=\"es\"][sectitle]" + dividedKeywords[0] + ":" + "[/sectitle]";
-                        var keywords = dividedKeywords[1].Split(';');
-                        foreach (var word in keywords)
-                        {
-                            if (keywords.Last().Equals(word))
-                            {
-                                taggedString += "[kwd]" + word + "[/kwd][/kwdgrp]";
-                            }
-                            else
-                            {
-                                taggedString += "[kwd]" + word + "[/kwd];";
-                            }
-
-                        }
-                        BuildRegularParagraphString(taggedString, newDocument );*/
                     }
                     else if (!inBody && paragraph.Range.Bold == 0 && paragraph.Range.Font.Size == 9999999 && paragraph.Alignment == WdParagraphAlignment.wdAlignParagraphCenter)
-                    { 
-                        var organizations = paragraph.Range.Text.Split(";");
-                        List<string> strings;
-                        foreach (var organization in organizations)
-                        {
-                            var refNumber = organization.Trim().ElementAt(0);
-                            if (Char.IsDigit(refNumber))
-                            {
-                                strings = new List<string>();
-                                var organizationString = organization.Remove(0, 1);
-                                strings.Add("[normaff id =\"aff" + refNumber + "\" ncountry=\"Spain\" ]");
-                                strings.Add("[label][sup]");
-                                strings.Add(refNumber + "");
-                                strings.Add("[/sup][/label]");
-                                strings.Add("[orgdiv" + refNumber + "]");
+                    {
+                        AddSourceTags(extractedWords, paragraph);
+                        SetStrategy(new SourcesParagraphFormat());
+                    }
 
-                                var locationStart = organizationString.IndexOf('(');
-                                var locationEnd = organizationString.IndexOf(')');
-                                var location = organizationString.Substring(locationStart + 1, locationEnd - locationStart - 1).Split(',');
-                                var separateByBracket = organizationString.Split('(');
-
-                                if (separateByBracket.Length > 0 && location.Length > 1)
-                                {
-                                    strings.Add(separateByBracket[0]);
-                                    strings.Add("[/orgdiv" + refNumber + "]");
-                                    strings.Add("(");
-                                    strings.Add("[city]");
-                                    strings.Add(location[0]);
-                                    strings.Add("[/city]");
-                                    strings.Add(",");
-                                    strings.Add("[country]");
-                                    strings.Add(location[1]);
-                                    strings.Add(").");
-                                    strings.Add("[normaff]\r");
-                                }
-
-                                SetStrategy(new SourcesParagraphFormat());
-                                strategy.formatParagraph(strings, newDocument);
-                                //BuildSourcesString(strings, newDocument);
-                                /* var organizationString = organization.Remove(0, 1);
-                                taggedString = "[normaff id=\"aff" + refNumber + "\" ncountry=\"Spain\" ] [label][sup]" + refNumber + "[/sup][/label][orgdiv" + refNumber + "]";
-                                var locationStart = organizationString.IndexOf('(');
-                                var locationEnd = organizationString.IndexOf(')');
-                                var location = organizationString.Substring(locationStart + 1, locationEnd - locationStart - 1).Split(',');
-                                var separateByBracket = organizationString.Split('(');
-
-                                if (separateByBracket.Length > 0 && location.Length > 1)
-                                {
-                                    taggedString += separateByBracket[0];
-                                    taggedString += "[/orgdiv" + refNumber + "]([city]" + location[0] + "[/city],[country]" + location[1] + "[/country]).[normaff]\r";
-                                }
-
-                                BuildSourcesString(taggedString, newDocument);*/
-                            }
-                        }
+                    if (extractedWords.Count > 0)
+                    {
+                        strategy.formatParagraph(extractedWords, newDocument);
                     }
                 }
 
@@ -569,6 +310,247 @@ namespace TFG.ViewModel
             }
         }
 
+        private static void AddSourceTags(List<string> extractedWords, Paragraph paragraph)
+        {
+            var organizations = paragraph.Range.Text.Split(";");
+            foreach (var organization in organizations)
+            {
+                var refNumber = organization.TrimStart().ElementAt(0);
+                if (Char.IsDigit(refNumber))
+                {
+                    var organizationString = organization.Remove(0, 1);
+                    extractedWords.Add("[normaff id =\"aff" + refNumber + "\" ncountry=\"Spain\" ]");
+                    extractedWords.Add("[label][sup]");
+                    extractedWords.Add(refNumber + "");
+                    extractedWords.Add("[/sup][/label]");
+                    extractedWords.Add("[orgdiv" + refNumber + "]");
+
+                    var locationStart = organizationString.IndexOf('(');
+                    var locationEnd = organizationString.IndexOf(')');
+                    var location = organizationString.Substring(locationStart + 1, locationEnd - locationStart - 1).Split(',');
+                    var separateByBracket = organizationString.Split('(');
+
+                    if (separateByBracket.Length > 0 && location.Length > 1)
+                    {
+                        extractedWords.Add(separateByBracket[0]);
+                        extractedWords.Add("[/orgdiv" + refNumber + "]");
+                        extractedWords.Add("(");
+                        extractedWords.Add("[city]");
+                        extractedWords.Add(location[0]);
+                        extractedWords.Add("[/city]");
+                        extractedWords.Add(",");
+                        extractedWords.Add("[country]");
+                        extractedWords.Add(location[1]);
+                        extractedWords.Add(").");
+                        extractedWords.Add("[normaff]\r");
+                    }
+                }
+            }
+        }
+
+        private static void AddKeywordTags(List<string> extractedWords, Paragraph paragraph)
+        {
+            var dividedKeywords = paragraph.Range.Text.Replace("\r", "").Split(':');
+            var keywords = dividedKeywords[1].Split(';');
+
+            extractedWords.Add("[kwdgrp language=\"es\"]");
+            extractedWords.Add("[sectitle]");
+            extractedWords.Add(dividedKeywords[0] + ":");
+            extractedWords.Add("[/sectitle]");
+
+            foreach (string s in keywords)
+            {
+                if (keywords.Last().Equals(s))
+                {
+                    extractedWords.Add("[kwd]");
+                    extractedWords.Add(s);
+                    extractedWords.Add("[/kwd]");
+                    extractedWords.Add("[/kwdgrp]");
+                }
+                else
+                {
+                    extractedWords.Add("[kwd]");
+                    extractedWords.Add(s);
+                    extractedWords.Add("[/kwd];");
+                }
+            }
+        }
+
+        private static void AddTableTags(int tableIndex, List<string> extractedWords, Paragraph paragraph)
+        {
+            var splitString = paragraph.Range.Text.Replace("\r", "").Replace("\u000e", "").Split('.');
+            //taggedString = "[label]" + splitString[0] + "[/label].";
+            //taggedString += "[caption]" + splitString[1] + splitString[splitString.Length - 1] + "[/caption]";
+            extractedWords.Add("[figgrp id =" + tableIndex + "]");
+            extractedWords.Add("[label]");
+            extractedWords.Add(splitString[0]);
+            extractedWords.Add("[/label]");
+            extractedWords.Add("[caption]");
+            extractedWords.Add(splitString[1] + splitString[splitString.Length - 1]);
+            extractedWords.Add("[/caption]");
+        }
+
+        private void AddSecTypeTags(List<string> extractedWords, Paragraph paragraph)
+        {
+            var secType = GetSecType(paragraph.Range.Text);
+            extractedWords.Add(string.Format("[xmlbody]\r [sec sec-type=\"{0}\"]", secType));
+            extractedWords.Add("[sectitle]");
+            extractedWords.Add(paragraph.Range.Text.Replace("\r", ""));
+            extractedWords.Add("[/sectitle]");
+        }
+
+        private string GetSecType(string text)
+        {
+            if (text == "INTRODUCCIÓN\r")
+            {
+                return "intro";
+            }
+            else if (text == "MÉTODO\r")
+            {
+                return "methods";
+            }
+            else
+            {
+                return "results";
+            }
+        }
+
+        private static void AddBibliographyTags(List<string> extractedWords, string[] splitText)
+        {
+            bool dateFound = false;
+            bool additionalInformation = false;
+            foreach (string line in splitText)
+            {
+                if (!dateFound && line.Contains('('))
+                {
+                    AddBaseBibliographyTags(extractedWords, splitText, line);
+                    dateFound = true;
+                    additionalInformation = !splitText.Last().Equals(line);
+                }
+                else if (additionalInformation)
+                {
+                    AddAdditionalInformation(extractedWords, line);
+                }
+                else if (line.Length > 3 && !line.Contains('.'))
+                {
+                    //taggedString += " [pauthor][surname]" + line + "[/surname],";
+                    extractedWords.Add(" [pauthor][surname]" + line + "[/surname],");
+                }
+                else
+                {
+                    //taggedString += " [fname]" + line + "[/fname][/pauthor],";
+                    extractedWords.Add(" [fname]" + line + "[/fname][/pauthor],");
+                }
+            }
+        }
+
+        private static void AddAdditionalInformation(List<string> extractedWords, string line)
+        {
+            if (line.Contains('('))
+            {
+                // Publishing information
+
+                var indexOfOpenBracket = line.IndexOf("(");
+                var indexOfEndBracket = line.IndexOf(")");
+                //taggedString += string.Concat("[volid]", line.AsSpan(0, indexOfOpenBracket).Trim(), "[/volid]");
+                extractedWords.Add(string.Concat("[volid]", line.AsSpan(0, indexOfOpenBracket).Trim(), "[/volid]"));
+                //taggedString += string.Concat("([issueno]", line.AsSpan(indexOfOpenBracket + 1 , indexOfEndBracket - indexOfOpenBracket - 1).Trim(), "[/issueno]),");
+                extractedWords.Add(string.Concat("([issueno]", line.AsSpan(indexOfOpenBracket + 1, indexOfEndBracket - indexOfOpenBracket - 1).Trim(), "[/issueno]),"));
+            }
+            else if (line.Contains('–'))
+            {
+                int indexOfSeparation = line.IndexOf('.');
+
+                if (indexOfSeparation > -1)
+                {
+                    // Page and article id
+
+                    //taggedString += string.Concat("[pages]", line.AsSpan(0, indexOfSeparation).Trim(), "[/pages]");
+                    extractedWords.Add(string.Concat("[pages]", line.AsSpan(0, indexOfSeparation).Trim(), "[/pages]"));
+                    //taggedString += string.Concat("[pubid]", line.AsSpan(indexOfSeparation + 1).Trim() , "[/pubid]");
+                    extractedWords.Add(string.Concat("[pubid]", line.AsSpan(indexOfSeparation + 1).Trim(), "[/pubid]"));
+                }
+                else
+                {
+                    // Only page information
+
+                    //taggedString += "[pages]" + line.Trim() + "[/pages]";
+                    extractedWords.Add("[pages]" + line.Trim() + "[/pages]");
+                }
+            }
+            else if (line.Contains(':'))
+            {
+                // doi/publication url
+                //taggedString += "[pubid]" + line.Trim() + "[/pubid]";
+                extractedWords.Add("[pubid]" + line.Trim() + "[/pubid]");
+            }
+            else
+            {
+                // Only basic publishing information
+                //taggedString += "[volid]" + line.Trim() + "[/volid]";
+                extractedWords.Add("[volid]" + line.Trim() + "[/volid]");
+            }
+        }
+
+        private static void AddBaseBibliographyTags(List<string> extractedWords, string[] splitText,  string line)
+        {
+            var c = 0;
+            var decomposedLastLine = line.Split('.');
+            if (decomposedLastLine.Length >= 3)
+            {
+                var lastName = string.Empty;
+                bool dateReached = false;
+                int i = 0;
+                while (!dateReached && i < decomposedLastLine.Length)
+                {
+                    if (!decomposedLastLine[i].Contains('('))
+                    {
+                        lastName += decomposedLastLine[i] + ".";
+                        i++;
+                    }
+                    else
+                    {
+                        dateReached = true;
+                    }
+                }
+
+
+                //var date = decomposedLastLine[1].Remove('(').Remove(')');
+                if (line == splitText.Last())
+                {
+                    //taggedString += " [fname]" + lastName + "[/fname][/pauthor]";
+                    extractedWords.Add(" [fname]" + lastName + "[/fname][/pauthor]");
+                }
+                else
+                {
+                    //taggedString += " [fname]" + lastName + "[/fname][/pauthor], ";
+                    extractedWords.Add(" [fname]" + lastName + "[/fname][/pauthor], ");
+                }
+
+                var date = decomposedLastLine[i].Replace("(", "").Replace(")", "").Trim();
+                //taggedString += "[/authors] ";
+                extractedWords.Add("[/authors]");
+                //taggedString += "([date dateiso=\"" + (date + "0000") + "\" specyear=\"" + date + "\"]" + date + "[/date]).";
+                extractedWords.Add("([date dateiso=\"" + (date + "0000") + "\" specyear=\"" + date + "\"]" + date + "[/date]).");
+                //taggedString += " [arttitle]" + decomposedLastLine[i + 1].Trim() + ".[/arttitle]";
+                extractedWords.Add(" [arttitle]" + decomposedLastLine[i + 1].Trim() + ".[/arttitle]");
+                i++;
+
+                if (i <= decomposedLastLine.Length - 2)
+                {
+                    //taggedString += "[source]" + decomposedLastLine[i + 1] + "[/source],";
+                    extractedWords.Add("[source]" + decomposedLastLine[i + 1] + "[/source],");
+                }
+            }
+        }
+
+        private static void AddDoctitleTags(List<string> extractedWords, Paragraph paragraph)
+        {
+            extractedWords.Clear();
+            extractedWords.Add("[doctitle]");
+            extractedWords.Add(paragraph.Range.Text.Replace("\r", "").Replace("\u000e", ""));
+            extractedWords.Add("[/doctitle]");
+        }
 
         private string MarkAuthors(Xceed.Document.NET.Paragraph par)
         {
