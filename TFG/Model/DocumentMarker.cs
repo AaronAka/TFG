@@ -172,7 +172,7 @@ namespace TFG.Model
         {
             if (!inBody)
             {
-                extractedWords.Add("[xmlabstr]" + string.Format(MarkingConstants.SECTITLE, paragraph.Range.Text.Replace("\r", "")));
+                extractedWords.Add(string.Format(MarkingConstants.SECTITLE, paragraph.Range.Text.Replace("\r", "")));
 
                 SetStrategy(new SectitleParagraphFormat());
             }

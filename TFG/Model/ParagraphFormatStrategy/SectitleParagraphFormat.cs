@@ -13,42 +13,33 @@ namespace TFG.Model.ParagraphFormatStrategy
             Range objRange = doc.Content;
             objRange.Collapse(ref oCollapseEnd);
 
-            if (textWithTags[0].Contains("xmlabstr"))
+            var splitText = textWithTags[0].Split(']');
+            for (int i = 0; i < splitText.Length; i++)
             {
-                var splitText = textWithTags[0].Split(']');
-                for (int i = 0; i < splitText.Length; i++)
+                if (!string.IsNullOrEmpty(splitText[i]))
                 {
-                    if (!string.IsNullOrEmpty(splitText[i]))
+                    objRange.Collapse(ref oCollapseEnd);
+
+                    objRange.Font.Size = 11;
+                    objRange.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
+
+                    if (i == 0)
                     {
+                        objRange.Text = splitText[i] + "]";
+                        objRange.Font.Name = "Times New Roman";
+                        objRange.Font.Color = WdColor.wdColorBlue;
+                    }
+                    else
+                    {
+                        var rawTextSplit = splitText[i].Split('[');
+                        objRange.Text = rawTextSplit[0];
+                        objRange.Font.Name = "Times New Roman";
+                        objRange.Font.Color = WdColor.wdColorBlack;
+
                         objRange.Collapse(ref oCollapseEnd);
-
-                        objRange.Font.Size = 11;
-                        objRange.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
-
-                        if (i == 0)
-                        {
-                            objRange.Text = splitText[i] + "]";
-                            objRange.Font.Name = "Arial";
-                            objRange.Font.Color = WdColor.wdColorRed;
-                        }
-                        else if (i == 1)
-                        {
-                            objRange.Text = splitText[i] + "]";
-                            objRange.Font.Name = "Times New Roman";
-                            objRange.Font.Color = WdColor.wdColorBlue;
-                        }
-                        else
-                        {
-                            var rawTextSplit = splitText[i].Split('[');
-                            objRange.Text = rawTextSplit[0];
-                            objRange.Font.Name = "Times New Roman";
-                            objRange.Font.Color = WdColor.wdColorBlack;
-
-                            objRange.Collapse(ref oCollapseEnd);
-                            objRange.Text = "[" + rawTextSplit[1] + "]";
-                            objRange.Font.Name = "Arial";
-                            objRange.Font.Color = WdColor.wdColorBlue;
-                        }
+                        objRange.Text = "[" + rawTextSplit[1] + "]";
+                        objRange.Font.Name = "Arial";
+                        objRange.Font.Color = WdColor.wdColorBlue;
                     }
                 }
             }
