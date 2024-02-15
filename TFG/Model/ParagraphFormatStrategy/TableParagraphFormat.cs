@@ -1,6 +1,7 @@
 ﻿using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using Range = Microsoft.Office.Interop.Word.Range;
 
@@ -34,7 +35,6 @@ namespace TFG.Model.ParagraphFormatStrategy
                 }
                 else if (textWithTags[i].Contains("caption"))
                 {
-
                     objRange.Font.Color = WdColor.wdColorGreen;
                 }
                 else
@@ -45,7 +45,7 @@ namespace TFG.Model.ParagraphFormatStrategy
             }
 
             objRange.Collapse(ref oCollapseEnd);
-            objRange.Text = "\r[graphic href=1578-8423-CPD-22-1-1-13]";
+            objRange.Text = "\r[graphic href=" +MarkingConstants.FILENAME + "]";
             objRange.Font.Name = "Arial";
             objRange.Font.Size = 9;
             objRange.Font.Color = WdColor.wdColorRose;
@@ -58,7 +58,7 @@ namespace TFG.Model.ParagraphFormatStrategy
             objRange.Font.Name = "Arial";
             objRange.Font.Size = 9;
             objRange.Font.Color = WdColor.wdColorRose;
-            objRange.InlineShapes.AddPicture("C:\\Users\\PC\\Documents\\TFG\\1578-8423-CPD-22-1-1-13image00" + Convert.ToInt32(match.Value) + ".png");
+            objRange.InlineShapes.AddPicture(Path.GetDirectoryName(MarkingConstants.FILEPATH) + "\\" + MarkingConstants.FILENAME + "image00" + Convert.ToInt32(match.Value) + ".png");
             objRange.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
 
             objRange.Collapse(ref oCollapseEnd);

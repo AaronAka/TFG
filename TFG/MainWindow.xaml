@@ -9,32 +9,32 @@
         Title="MainWindow" Height="450" Width="800" ResizeMode="NoResize"
         Background="#553C83">
     <Window.DataContext>
-        <viewmodel:AutoMarkupViewModel/>
+        <viewmodel:AutoMarkupViewModel />
     </Window.DataContext>
     <Window.Resources>
         <Style x:Key="OpenButton" TargetType="Button">
-            <Setter Property="TextElement.FontFamily" Value="Arial"/>
-            <Setter Property="Background" Value="#FE6584"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="TextElement.FontFamily" Value="Arial" />
+            <Setter Property="Background" Value="#FE6584" />
+            <Setter Property="Cursor" Value="Hand" />
 
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FE4C70"/>
+                    <Setter Property="Background" Value="#FE4C70" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="MarkButton" TargetType="Button">
-            <Setter Property="TextElement.FontFamily" Value="Arial"/>
-            <Setter Property="Background" Value="#FE6584"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="TextElement.FontFamily" Value="Arial" />
+            <Setter Property="Background" Value="#FE6584" />
+            <Setter Property="Cursor" Value="Hand" />
 
             <Style.Triggers>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Background" Value="Gray" />
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FE4C70"/>
+                    <Setter Property="Background" Value="#FE4C70" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -46,53 +46,52 @@
                             VerticalAlignment="Center"
                             HorizontalAlignment="Center">
                 <ContentPresenter VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"/>
+                                  HorizontalAlignment="Center" />
             </Border>
         </ControlTemplate>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="191*"/>
-            <RowDefinition Height="243*"/>
+            <RowDefinition Height="191*" />
+            <RowDefinition Height="243*" />
         </Grid.RowDefinitions>
-        <TextBlock Text="Welcome to AutoMarkup" 
+        <TextBlock Text="Welcome to AutoMarkup"
                    Foreground="White"
                    FontSize="40"
                    VerticalAlignment="Top"
                    HorizontalAlignment="Left" Margin="24,154,0,0"
                    FontStyle="Italic"
-                   FontFamily="Arial" Grid.RowSpan="2"/>
+                   FontFamily="Arial" Grid.RowSpan="2" />
 
         <Button x:Name="OpenFileDialogButton" Style="{StaticResource OpenButton}" Template="{StaticResource ButtonTemplate}"
-                Command="{Binding Path=OpenFileDialogCommand}" 
-                Content="Open file" 
-                HorizontalAlignment="Left" 
+                Command="{Binding Path=OpenFileDialogCommand}"
+                Content="Open file"
+                HorizontalAlignment="Left"
                 Width="140" Margin="48,54,0,90" Grid.Row="1">
         </Button>
 
         <Button x:Name="MarkFileButton" Style="{StaticResource MarkButton}" Template="{StaticResource ButtonTemplate}"
-                Command="{Binding Path=MarkFileCommand}" 
-                IsEnabled="{Binding EnabledMarkButton}" 
-                Content="Mark document"  
+                Command="{Binding Path=MarkFileCommand}"
+                IsEnabled="{Binding EnabledMarkButton}"
+                Content="Mark document"
                 HorizontalAlignment="Left"
                 Width="142" Margin="222,53,0,90" Grid.Row="1">
-
         </Button>
 
         <Grid Margin="-1024,-959,574,436">
             <Grid.RenderTransform>
-                <RotateTransform Angle="50"/>
+                <RotateTransform Angle="50" />
             </Grid.RenderTransform>
             <StackPanel Margin="556,-594,-1161,794">
-                <Border Width="700" Height="35" Background="Aquamarine" CornerRadius="20" Margin="150,0,0,0"/>
-                <Border Width="700" Height="35" Background="#FC6586" CornerRadius="20" Margin="0,15,0,0"/>
-                <Border Width="700" Height="35" Background="#383360" CornerRadius="20" Margin="75,15,0,0"/>
+                <Border Width="700" Height="35" Background="Aquamarine" CornerRadius="20" Margin="150,0,0,0" />
+                <Border Width="700" Height="35" Background="#FC6586" CornerRadius="20" Margin="0,15,0,0" />
+                <Border Width="700" Height="35" Background="#383360" CornerRadius="20" Margin="75,15,0,0" />
             </StackPanel>
             <StackPanel Margin="1691,-583,-1691,582">
-                <Border Width="700" Height="35" Background="Aquamarine" CornerRadius="20" Margin="150,0,0,0"/>
-                <Border Width="700" Height="35" Background="#FC6586" CornerRadius="20" Margin="0,15,0,0"/>
-                <Border Width="700" Height="35" Background="#383360" CornerRadius="20" Margin="75,15,0,0"/>
+                <Border Width="700" Height="35" Background="Aquamarine" CornerRadius="20" Margin="150,0,0,0" />
+                <Border Width="700" Height="35" Background="#FC6586" CornerRadius="20" Margin="0,15,0,0" />
+                <Border Width="700" Height="35" Background="#383360" CornerRadius="20" Margin="75,15,0,0" />
             </StackPanel>
         </Grid>
     </Grid>

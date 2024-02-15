@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TFG.Model
 {
@@ -14,11 +12,13 @@ namespace TFG.Model
             var organizations = paragraph.Range.Text.Split(";");
             foreach (var organization in organizations)
             {
-                var refNumber = organization.TrimStart().ElementAt(0);
+                var organizationTrim = organization.TrimStart();
+                var refNumber = organizationTrim.ElementAt(0);
+                var indexNewOrg = extractedWords.Any() ? extractedWords.Count : 0;
                 if (Char.IsDigit(refNumber))
                 {
-                    var organizationString = organization.Remove(0, 1);
-                    extractedWords.Add(string.Format(MarkingConstants.NORMAFF_OPEN, refNumber));
+                    var organizationString = organizationTrim.Remove(0, 1);
+                    //extractedWords.Add(string.Format(MarkingConstants.NORMAFF_OPEN, refNumber));
                     extractedWords.Add(MarkingConstants.SUP_OPEN + MarkingConstants.LABEL_OPEN);
                     extractedWords.Add(refNumber + "");
                     extractedWords.Add(MarkingConstants.SUP_OPEN + MarkingConstants.LABEL_CLOSE);
@@ -37,12 +37,14 @@ namespace TFG.Model
                         extractedWords.Add(MarkingConstants.CITY_OPEN);
                         extractedWords.Add(location[0]);
                         extractedWords.Add(MarkingConstants.CITY_CLOSE);
-                        extractedWords.Add(MarkingConstants.SEMICOLON);
+                        extractedWords.Add(MarkingConstants.COMMA);
                         extractedWords.Add(MarkingConstants.COUNTRY_OPEN);
                         extractedWords.Add(location[1]);
                         extractedWords.Add(MarkingConstants.COUNTRY_CLOSE);
                         extractedWords.Add(MarkingConstants.CLOSE_PARENTHESIS + MarkingConstants.DOT);
                         extractedWords.Add(MarkingConstants.NORMAFF_CLOSE + "\r");
+
+                        extractedWords.Insert(indexNewOrg, string.Format(MarkingConstants.NORMAFF_OPEN, refNumber, location[1]));
                     }
                 }
             }
@@ -62,12 +64,15 @@ namespace TFG.Model
             {
                 extractedWords.Add(MarkingConstants.KWD_OPEN);
                 extractedWords.Add(s);
-                extractedWords.Add(MarkingConstants.KWD_CLOSE);
 
                 if (keywords.Last().Equals(s))
                 {
-                    
+                    extractedWords.Add(MarkingConstants.KWD_CLOSE);
                     extractedWords.Add(MarkingConstants.KWDGRP_CLOSE);
+                }
+                else
+                {
+                    extractedWords.Add(MarkingConstants.KWD_CLOSE + MarkingConstants.SEMICOLON);
                 }
             }
         }
@@ -97,7 +102,7 @@ namespace TFG.Model
             {
                 extractedWords.Add(string.Format(MarkingConstants.SECTYPE_OPEN, secType));
             }
-            
+
             extractedWords.Add(MarkingConstants.SECTITLE_OPEN);
             extractedWords.Add(paragraph.Range.Text.Replace("\r", ""));
             extractedWords.Add(MarkingConstants.SECTITLE_CLOSE);
@@ -119,10 +124,9 @@ namespace TFG.Model
             }
         }
 
-        public static List<string> MarkAuthorsInterop(string par)
+        public static void MarkAuthorsInterop(string par, List<string> extractedWords)
         {
             string[] splittedAuthors = par.Split(new char[] { ',', '.', 'y', '&' });
-            List<string> authors = new List<string>();
             string author = "";
             int i = 0;
             foreach (string val in splittedAuthors)
@@ -135,16 +139,9 @@ namespace TFG.Model
                 else if (!val.Any(char.IsDigit))
                 {
                     author += string.Format(MarkingConstants.AUTHORS_CLOSE, val);
-                    authors.Add(author + "\v");
+                    extractedWords.Add(author + "\v");
                 }
             }
-
-            /*string res = "";
-            foreach (string authorFinal in authors)
-            {
-                res += authorFinal + "\v";
-            }*/
-            return authors;
         }
 
         public static void AddBibliographyTags(List<string> extractedWords, string[] splitText)
@@ -244,7 +241,6 @@ namespace TFG.Model
                         dateReached = true;
                     }
                 }
-
 
                 //var date = decomposedLastLine[1].Remove('(').Remove(')');
                 if (line == splitText.Last())

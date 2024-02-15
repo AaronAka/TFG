@@ -12,7 +12,7 @@ namespace TFG.Model.ParagraphFormatStrategy
             doc.Paragraphs.Add();
             Range objRange = doc.Content;
 
-            for(int i = 0; i < textWithTags.Count; i++)
+            for (int i = 0; i < textWithTags.Count; i++)
             {
                 objRange.Collapse(ref oCollapseEnd);
                 objRange.Text = textWithTags[i];

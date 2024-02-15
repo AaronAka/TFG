@@ -21,10 +21,9 @@ namespace TFG.Model.ParagraphFormatStrategy
                 objRange.Paragraphs.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
 
                 if (i == 0)
-                { 
+                {
                     objRange.Font.Name = "Arial";
                     objRange.Font.Color = WdColor.wdColorGreen;
-                    
                 }
                 else if (i == 1 || i == 3)
                 {

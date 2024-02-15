@@ -1,16 +1,25 @@
-﻿using DocumentFormat.OpenXml.Vml;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TFG.Model
+﻿namespace TFG.Model
 {
+    public enum ParagraphType
+    {
+        Empty,
+        Doctitle,
+        Authors,
+        Sectitle,
+        Subsection,
+        Regular,
+        Table,
+        Keywords,
+        Sources,
+        Bibliography
+    }
+
     public static class MarkingConstants
     {
+        public static string? FILEPATH;
+        public static string? FILENAME;
+
+        #region Tags
         public const string DOCTITLE_OPEN = "[doctitle]";
         public const string DOCTITLE_CLOSE = "[/doctitle]";
         public const string BIBLIOGRAPHY_REF_OPEN = "[ref id=\"r{0}\" reftype =\"journal\"][authors role=\"nd\"]";
@@ -18,7 +27,7 @@ namespace TFG.Model
         public const string BIBLIOGRAPHY_PAUTHOR_OPEN = " [pauthor][surname]{0}[/surname],";
         public const string BIBLIOGRAPHY_PAUTHOR_CLOSE = " [fname]{0}[/fname][/pauthor],";
         public const string BIBLIOGRAPHY_PAUTHOR_CLOSE_NO_COMMA = " [fname]{0}[/fname][/pauthor]";
-        public const string BIBLIOGRAPHY_AUTHORS_CLOSE= "[/authors]";
+        public const string BIBLIOGRAPHY_AUTHORS_CLOSE = "[/authors]";
         public const string BIBLIOGRAPHY_DATE = "([date dateiso=\"" + "{0}" + "0000" + "\" specyear=\"{0}\"]{0}[/date]).";
         public const string BIBLIOGRAPHY_ARTTITLE = " [arttitle]{0}.[/arttitle]";
         public const string BIBLIOGRAPHY_SOURCE = "[source]{0}[/source],";
@@ -45,8 +54,8 @@ namespace TFG.Model
         public const string KWDGRP_CLOSE = "[/kwdgrp]";
         public const string KWD_OPEN = "[kwd]";
         public const string KWD_CLOSE = "[/kwd]";
-        public const string NORMAFF_OPEN = "[normaff id =\"aff{0}\" ncountry=\"Spain\" ]";
-        public const string NORMAFF_CLOSE = "[normaff]";
+        public const string NORMAFF_OPEN = "[normaff id =\"aff{0}\" ncountry=\"{1}\" ]";
+        public const string NORMAFF_CLOSE = "[/normaff]";
         public const string SUP_OPEN = "[sup]";
         public const string SUP_CLOSE = "[/sup]";
         public const string ORGDIVE_OPEN = "[orgdiv{0}]";
@@ -56,10 +65,15 @@ namespace TFG.Model
         public const string COUNTRY_OPEN = "[country]";
         public const string COUNTRY_CLOSE = "[/country]";
 
+        #endregion
+
+        #region Literals
         public const string OPEN_PARENTHESIS = "(";
         public const string CLOSE_PARENTHESIS = ")";
         public const string DOT = ".";
         public const string COLON = ":";
-        public const string SEMICOLON = ",";
+        public const string SEMICOLON = ";";
+        public const string COMMA = ",";
+        #endregion
     }
 }

@@ -11,54 +11,54 @@
         <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
             <ControlTemplate.Resources>
                 <Style TargetType="Button">
-                    <Setter Property="TextElement.FontFamily" Value="Arial"/>
-                    <Setter Property="Background" Value="#FE6584"/>
-                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="TextElement.FontFamily" Value="Arial" />
+                    <Setter Property="Background" Value="#FE6584" />
+                    <Setter Property="Cursor" Value="Hand" />
                 </Style>
             </ControlTemplate.Resources>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FE4C70"/>
+                    <Setter Property="Background" Value="#FE4C70" />
                 </Trigger>
             </ControlTemplate.Triggers>
-            
+
             <Border Width="100" Height="25"
                             CornerRadius="12"
                             Background="{TemplateBinding Background}">
                 <ContentPresenter VerticalAlignment="Center"
-                                  HorizontalAlignment="Center"/>
+                                  HorizontalAlignment="Center" />
             </Border>
         </ControlTemplate>
     </Window.Resources>
     <Grid>
-        <TextBlock Text="Welcome to AutoMarkup" 
+        <TextBlock Text="Welcome to AutoMarkup"
                    Foreground="White"
                    FontSize="40"
                    VerticalAlignment="Top"
                    HorizontalAlignment="Center" Margin="0,58,0,0"
                    FontStyle="Italic"
-                   FontFamily="Arial"/>
-        <Button x:Name="OpenFileDialogButton" Template="{StaticResource ButtonTemplate}" 
-                Command="{Binding Path=OpenFileDialogCommand}" 
-                Content="Open file" 
+                   FontFamily="Arial" />
+        <Button x:Name="OpenFileDialogButton" Template="{StaticResource ButtonTemplate}"
+                Command="{Binding Path=OpenFileDialogCommand}"
+                Content="Open file"
                 HorizontalAlignment="Left" Margin="241,225,0,155"
                 Width="108" />
-        <Button x:Name="MarkFileButton" 
-                Command="{Binding Path=MarkFileCommand}" 
-                IsEnabled="{Binding EnabledMarkButton}" 
-                Content="Mark document"  
+        <Button x:Name="MarkFileButton"
+                Command="{Binding Path=MarkFileCommand}"
+                IsEnabled="{Binding EnabledMarkButton}"
+                Content="Mark document"
                 HorizontalAlignment="Left" Margin="448,225,0,155"
                 Width="108">
 
             <Button.Style>
                 <Style TargetType="Button">
-                    <Setter Property="TextElement.FontFamily" Value="Arial"/>
-                    <Setter Property="Background" Value="#FE6584"/>
-                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="TextElement.FontFamily" Value="Arial" />
+                    <Setter Property="Background" Value="#FE6584" />
+                    <Setter Property="Cursor" Value="Hand" />
 
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#FE4C70"/>
+                            <Setter Property="Background" Value="#FE4C70" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -70,7 +70,7 @@
                             CornerRadius="12"
                             Background="{TemplateBinding Background}">
                         <ContentPresenter VerticalAlignment="Center"
-                                          HorizontalAlignment="Center"/>
+                                          HorizontalAlignment="Center" />
                     </Border>
                 </ControlTemplate>
             </Button.Template>

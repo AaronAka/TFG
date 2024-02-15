@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TFG.Model
+﻿namespace TFG.Model
 {
-    class DummyModelClass
+    internal class DummyModelClass
     {
     }
 }
